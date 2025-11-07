@@ -1,0 +1,11 @@
+image:
+  repository: docker.io/guscontre1/ocp-dog-frontend-api
+  tag: "2"
+
+service:
+  port: 5001
+  targetPort: 5001
+
+env:
+  BACKEND_URL: http://ocp-dog-backend-api:5002/dog
+  ALLOWED_ORIGINS: "*"
