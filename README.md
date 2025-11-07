@@ -5,7 +5,7 @@ Microservicio Flask que actúa como proxy hacia el backend de perros. Expone dos
 - `GET /healthz` → devuelve `{ "status": "ok" }`.
 - `GET /dog` → consume el backend definido en `BACKEND_URL` (por defecto `http://ocp-dog-backend-api:5002/dog`) y reenvía el JSON recibido.
 
-El servicio escucha en el puerto `5001`. Si necesitas apuntar a otro backend (por ejemplo, uno levantado en tu máquina), sobreescribe la variable de entorno `BACKEND_URL` antes de iniciar el servidor.
+El servicio escucha en el puerto `5001`. Si necesitas apuntar a otro backend (por ejemplo, uno levantado en tu máquina), sobreescribe la variable de entorno `BACKEND_URL` antes de iniciar el servidor. Para permitir peticiones desde aplicaciones web en otro dominio/puerto, usa `ALLOWED_ORIGINS` (lista separada por comas o `*` para permitir todas; por defecto es `*`).
 
 ## Ejecución local
 
@@ -37,13 +37,15 @@ El servicio escucha en el puerto `5001`. Si necesitas apuntar a otro backend (po
 
 2. Arranca un contenedor publicando el puerto `5001`.
 
-   ```bash
-   docker run --rm -p 5001:5001 \
-     -e BACKEND_URL="http://<host-del-backend>:5002/dog" \
-     ocp-dog-frontend-api
-   ```
+```bash
+ docker run --rm -p 5001:5001 \
+  -e BACKEND_URL="http://<host-del-backend>:5002/dog" \
+  -e ALLOWED_ORIGINS="http://localhost:5173" \
+  ocp-dog-frontend-api
+ ```
 
-3. Si el backend vive en otro contenedor, asegúrate de que ambos compartan red (por ejemplo, usando `--network` o `docker compose`).
+3. Si el backend vive en otro contenedor, asegúrate de que ambos compartan red (por ejemplo, usando `--network` o `docker compose`).  
+   - En redes compartidas (como `docker compose` o OpenShift) el hostname `ocp-dog-backend-api` es el esperado, por lo que el valor por defecto suele funcionar. Si expones el backend directamente en tu host (ej. `docker run -p 5002:5002`), cambia `BACKEND_URL` a `http://host.docker.internal:5002/dog` o la IP que corresponda.
 
 ## Pruebas de la API
 
