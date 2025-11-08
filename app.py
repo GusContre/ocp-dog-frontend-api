@@ -7,7 +7,9 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 
-DEFAULT_BACKEND_URL = "http://ocp-dog-backend-api:5002/dog"
+DEFAULT_BACKEND_URL = (
+    "http://ocp-dog-backend-api.guscontre-dev.svc.cluster.local:5002/dog"
+)
 DEFAULT_ALLOWED_ORIGINS = "*"
 
 
