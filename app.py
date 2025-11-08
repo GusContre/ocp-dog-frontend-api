@@ -2,7 +2,7 @@ import os
 from typing import List, Union
 
 import requests
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -24,6 +24,14 @@ def parse_allowed_origins(raw_value: str) -> Union[str, List[str]]:
 
 def get_backend_url() -> str:
     return os.environ.get("BACKEND_URL", DEFAULT_BACKEND_URL)
+
+
+def get_backend_base() -> str:
+    url = get_backend_url().rstrip("/")
+    # If points to /dog, strip it to build other endpoints
+    if url.endswith("/dog"):
+        return url[: -len("/dog")]
+    return url
 
 
 def get_allowed_origins() -> Union[str, List[str]]:
@@ -50,6 +58,18 @@ def dog():
         return jsonify({"status": "error", "message": str(exc)}), 502
 
     return jsonify(payload)
+
+
+@app.post("/save")
+def save():
+    base = get_backend_base()
+    try:
+        payload = request.get_json(force=True, silent=True) or {}
+        resp = requests.post(f"{base}/save", json=payload, timeout=5)
+        resp.raise_for_status()
+        return jsonify(resp.json())
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 502
 
 
 if __name__ == "__main__":
